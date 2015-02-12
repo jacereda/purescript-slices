@@ -3,6 +3,7 @@ module Data.Slice
   , Slice()
   , sarray
   , sat
+  , seq
   , shead
   , slast
   , stail
@@ -17,6 +18,9 @@ module Data.Slice
   , sfoldl
   , sfoldr
   , sempty
+  , sappend
+  , sconcat
+  , sconcatMap
   ) where
 
 import Control.Alt
@@ -188,107 +192,6 @@ function szipWith(f) {
   };
 }
 """ :: forall a b c. (a -> b -> c) -> Slice a -> Slice b -> Slice c
-
-
--- mapMaybe :: forall a b. (a -> Maybe b) -> Slice a -> Slice b
--- mapMaybe f = concatMap (maybe [] singleton <<< f)
-
--- catMaybes :: forall a. [Maybe a] -> [a]
--- catMaybes = concatMap (maybe [] singleton)
-
--- foreign import filter
---   "function filter (f) {\
---   \  return function (arr) {\
---   \    var n = 0;\
---   \    var result = [];\
---   \    for (var i = 0, l = arr.length; i < l; i++) {\
---   \      if (f(arr[i])) {\
---   \        result[n++] = arr[i];\
---   \      }\
---   \    }\
---   \    return result;\
---   \  };\
---   \}" :: forall a. (a -> Boolean) -> [a] -> [a]
-
--- foreign import range
---   "function range (start) {\
---   \  return function (end) {\
---   \    var i = ~~start, e = ~~end;\
---   \    var step = i > e ? -1 : 1;\
---   \    var result = [i], n = 1;\
---   \    while (i !== e) {\
---   \      i += step;\
---   \      result[n++] = i;\
---   \    }\
---   \    return result;\
---   \  };\
---   \}" :: Number -> Number -> [Number]
-
--- (..) :: Number -> Number -> [Number]
--- (..) = range
-
--- nub :: forall a. (Eq a) => [a] -> [a]
--- nub = nubBy (==)
-
--- nubBy :: forall a. (a -> a -> Boolean) -> [a] -> [a]
--- nubBy _ [] = []
--- nubBy (==) (x:xs) = x : nubBy (==) (filter (\y -> not (x == y)) xs)
-
--- sort :: forall a. (Ord a) => [a] -> [a]
--- sort xs = sortBy compare xs
-
--- sortBy :: forall a. (a -> a -> Ordering) -> [a] -> [a]
--- sortBy comp xs = sortJS comp' xs
---   where
---     comp' x y = case comp x y of
---       GT -> 1
---       EQ -> 0
---       LT -> -1
-
--- foreign import sortJS
---   "function sortJS (f) {\
---   \  return function (l) {\
---   \    return l.slice().sort(function (x, y) {\
---   \      return f(x)(y);\
---   \    });\
---   \  };\
---   \}" :: forall a. (a -> a -> Number) -> [a] -> [a]
-
--- group :: forall a. (Eq a) => [a] -> [[a]]
--- group xs = groupBy (==) xs
-
--- -- | Performs a sorting first.
--- group' :: forall a. (Ord a) => [a] -> [[a]]
--- group' = group <<< sort
-
--- groupBy :: forall a. (a -> a -> Boolean) -> [a] -> [[a]]
--- groupBy = go []
---   where
---   go :: forall a. [[a]] -> (a -> a -> Boolean) -> [a] -> [[a]]
---   go acc _  []     = reverse acc
---   go acc op (x:xs) = let sp = span (op x) xs in
---                      go ((x:sp.init):acc) op sp.rest
-
--- span :: forall a. (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
--- span = go []
---   where
---   go :: forall a. [a] -> (a -> Boolean) -> [a] -> { init :: [a], rest :: [a] }
---   go acc p (x:xs) | p x = go (x:acc) p xs
---   go acc _ xs           = { init: reverse acc, rest: xs }
-
--- takeWhile :: forall a. (a -> Boolean) -> [a] -> [a]
--- takeWhile p xs = (span p xs).init
-
--- dropWhile :: forall a. (a -> Boolean) -> [a] -> [a]
--- dropWhile p xs = (span p xs).rest
-
-foreign import ut
-"""
-function ut(a) {
-  console.log(a);
-  return a;
-}
-""" :: forall a. a -> a
 
 instance showSlice :: (Show a) => Show (Slice a) where
   show s = "Slice [" ++ intercalate ", " elems ++ "]"
