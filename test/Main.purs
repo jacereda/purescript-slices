@@ -10,11 +10,8 @@ import Data.Foldable
 
 instance arbSlice :: (Arbitrary a) => Arbitrary (Slice a) where
   arbitrary = do
-    b <- arbitrary
-    if b then return sempty else do
-      a <- arbitrary
-      as <- arbitrary
-      return $ a <> as
+    a <- arbitrary
+    return $ slice a
           
 main = do
   let sz = sdrop 1 $ slice [0]
