@@ -19,15 +19,14 @@
   ],
   "dependencies": {
     "purescript-arrays": "*",
+    "purescript-control": "*",
+    "purescript-foldable-traversable": "*",
+    "purescript-monoid": "*",
     "purescript-maybe": "*"
   },
   "devDependencies": {
-    "purescript-random": "0.1.1",
-    "purescript-quickcheck": "*",
-    "core-tests": "https://github.com/purescript/core-tests.git"
-  },
-  "resolutions": {
-    "purescript-arrays": "~0.3.0",
-    "purescript-foldable-traversable": "0.2.1"
+    "purescript-random": "*",
+    "purescript-quickcheck": "0.5.0",
+    "core-tests": "https://github.com/jacereda/core-tests.git"
   }
 }
