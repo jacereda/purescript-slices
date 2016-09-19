@@ -1,21 +1,75 @@
 module Test.Main where
 
-import Test.QuickCheck
+import Test.QuickCheck.Laws.Data.Functor
+import Control.Alt (alt, class Alt)
+import Control.Alternative (class Alternative)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Eff.Random (RANDOM)
+import Control.MonadPlus (class MonadPlus)
+import Control.MonadZero (class MonadZero)
+import Control.Plus (empty, class Plus)
 import Data.Foldable (foldr, foldl)
 import Data.Maybe (Maybe(..))
-import Data.Slice (szipWith, sfoldr, sfoldl, smap, sfindLast, sfind, snull, stail, sinit, slast, shead, stake, sdrop, sarray, sat, slice)
-import Prelude (Unit, bind, negate, not, show, (+), (==), ($), (<>), (*))
+import Data.Monoid (mempty, class Monoid)
+import Data.Slice (scompare, Slice, szipWith, sfoldr, sfoldl, smap, sfindLast, sfind, snull, stail, sinit, slast, shead, stake, sdrop, sarray, sat, slice)
+import Prelude (Ordering(..), append, class Semigroup, compare, class Ord, class Bind, class Monad, (<<<), class Applicative, eq, class Eq, class Apply, map, apply, class Functor, pure, Unit, bind, negate, not, show, (+), (==), ($), (<>), (*))
+import Test.QuickCheck (QC, quickCheck')
+import Test.QuickCheck.Arbitrary (arbitrary, class Arbitrary)
+import Test.QuickCheck.Laws (A, checkLaws)
+import Test.QuickCheck.Laws.Control (checkPlus, checkMonadZero, checkMonadPlus, checkMonad, checkBind, checkApply, checkApplicative, checkAlternative, checkAlt)
+import Test.QuickCheck.Laws.Data (checkMonoid, checkSemigroup, checkOrd, checkEq)
+import Type.Proxy (Proxy(Proxy), Proxy2(Proxy2))
 
--- newtype TestSlice a = TestSlice (Slice a)
+newtype TestSlice a = TestSlice (Slice a)
 
--- instance arbSlice :: (Arbitrary a) => Arbitrary (TestSlice a) where
---   arbitrary = do
---     a <- arbitrary
---     return $ TestSlice $ slice a
+unTestSlice :: forall a. TestSlice a -> Slice a
+unTestSlice (TestSlice a) = a
+
+instance arbTestSlice :: (Arbitrary a) => Arbitrary (TestSlice a) where
+  arbitrary = do
+    a <- arbitrary
+    pure $ TestSlice $ slice a
+
+instance eqTestSlice :: Eq a => Eq (TestSlice a) where
+  eq (TestSlice a) (TestSlice b) = eq a b
+
+instance ordTestSlice :: Ord a => Ord (TestSlice a) where
+  compare (TestSlice a) (TestSlice b) = compare a b
+
+instance functorTestSlice :: Functor TestSlice where
+  map f (TestSlice xs) = TestSlice $ map f xs
+
+instance applyTestSlice :: Apply TestSlice where
+  apply (TestSlice fs) (TestSlice xs) = TestSlice $ apply fs xs
+
+instance applicativeTestSlice :: Applicative TestSlice where
+  pure = TestSlice <<< pure
+
+instance bindTestSlice :: Bind TestSlice where
+  bind (TestSlice xs) f = TestSlice $ bind xs $ unTestSlice <<< f
+
+instance semigroupTestSlice :: Semigroup (TestSlice a) where
+  append (TestSlice xs) (TestSlice ys) = TestSlice $ append xs ys
+
+instance monoidTestSlice :: Monoid (TestSlice a) where
+  mempty = TestSlice mempty
+
+instance monadTestSlice :: Monad TestSlice
+
+instance altTestSlice :: Alt TestSlice where
+  alt (TestSlice xs) (TestSlice ys) = TestSlice $ alt xs ys
+
+instance plusTestSlice :: Plus TestSlice where
+  empty = TestSlice empty
+
+instance alternativeTestSlice :: Alternative TestSlice
+
+instance monadZeroTestSlice :: MonadZero TestSlice
+
+instance monadPlusTestSlice :: MonadPlus TestSlice
+
 
 main :: Eff (console :: CONSOLE, random :: RANDOM, err :: EXCEPTION) Unit
 main = do
@@ -122,15 +176,33 @@ main = do
   assert $ foldr (\x sofar -> x) 0 s123 == 1
   assert $ foldr (+) 0 sz == 0
 
---  log "test functor laws"
---  checkFunctor s1
+  log "test compare"
+  assert $ scompare s123 s1 == GT
+  assert $ scompare s1 s123 == LT
+  assert $ scompare s1 s1 == EQ
+  assert $ scompare sz sz == EQ
+  assert $ scompare s123 s123 == EQ
+  assert $ scompare sz s1 == LT
 
---  log "test applicative laws"
---  checkApplicative s1 s1 s1
+  checkLaws "Slice" $ do
+    let p = Proxy :: Proxy (TestSlice A)
+        p2 = Proxy2 :: Proxy2 TestSlice
 
---  log "test monad laws"
---  checkMonad s1
-  
+    checkEq p
+    checkOrd p
+    checkFunctor p2
+    checkAlt p2
+    checkAlternative p2
+    checkApplicative p2
+    checkApply p2
+    checkBind p2
+    checkSemigroup p
+    checkMonoid p
+    checkMonad p2
+    checkMonadPlus p2
+    checkMonadZero p2
+    checkPlus p2
+
   log "done"
 
 assert :: Boolean -> QC () Unit

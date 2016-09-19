@@ -1,5 +1,6 @@
 {
   "name": "purescript-slice",
+  "version": "0.0.1",
   "homepage": "https://github.com/jacereda/purescript-slice",
   "description": "Slice utility functions",
   "keywords": [
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "purescript-console": "~1.0.0",
+    "purescript-quickcheck-laws": "~1.0.0",
     "purescript-quickcheck": "~1.0.0"
   }
 }

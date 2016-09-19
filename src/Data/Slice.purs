@@ -4,6 +4,7 @@ module Data.Slice
   , Slice()
   , sarray
   , sat
+  , scompare
   , seq
   , shead
   , slast
@@ -25,12 +26,12 @@ module Data.Slice
   ) where
 
 import Prelude
-import Control.Plus (class Plus, class Alt)
 import Control.MonadPlus (class MonadPlus, class MonadZero, class Alternative)
-import Data.Monoid (class Monoid, mempty)
-import Data.Maybe (Maybe(..))
+import Control.Plus (class Plus, class Alt)
 import Data.Array (concat, length, (!!))
 import Data.Foldable (class Foldable, intercalate, foldl)
+import Data.Maybe (Maybe(..))
+import Data.Monoid (class Monoid, mempty)
 
 newtype Slice a = Slice {base::Int, len::Int, arr::Array a}
 
@@ -59,6 +60,10 @@ sat (Slice s) n = if n < s.len && n >= 0 then s.arr !! (s.base + n) else Nothing
 seq :: forall a. (Eq a) => Slice a -> Slice a -> Boolean
 seq aa@(Slice a) bb@(Slice b) = a.len == b.len
                                 && (foldl (&&) true $ szipWith (==) aa bb)
+
+-- | Total order comparison.
+scompare :: forall a. (Ord a) => Slice a -> Slice a -> Ordering
+scompare a b = compare (sarray a) (sarray b)
 
 -- | Drop a number of elements from the start of a slice, 
 -- | creating a new slice (O(1)).
@@ -165,6 +170,9 @@ instance foldableSlice :: Foldable Slice where
 
 instance eqSlice :: (Eq a) => Eq (Slice a) where
   eq = seq
+
+instance ordSlice :: (Ord a) => Ord (Slice a) where
+  compare = scompare
 
 instance functorSlice :: Functor Slice where
   map = smap
