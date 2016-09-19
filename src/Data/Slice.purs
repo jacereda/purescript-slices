@@ -165,31 +165,29 @@ instance foldableSlice :: Foldable Slice where
 
 instance eqSlice :: (Eq a) => Eq (Slice a) where
   eq = seq
---  neq a b = not $ a == b
 
 instance functorSlice :: Functor Slice where
-   map = smap
+  map = smap
 
 instance applySlice :: Apply Slice where
-   apply = ap
+  apply = ap
 
 instance applicativeSlice :: Applicative Slice where
-   pure = ssingleton
+  pure = ssingleton
 
 instance bindSlice :: Bind Slice where
-   bind = flip sconcatMap
+  bind = flip sconcatMap
 
 instance monadSlice :: Monad Slice
 
 instance altSlice :: Alt Slice where
-   alt = sappend
+  alt = sappend
   
 instance plusSlice :: Plus Slice where
-   empty = sempty
+  empty = sempty
   
 instance alternativeSlice :: Alternative Slice
 
 instance monadZeroSlice :: MonadZero Slice
 
 instance monadPlusSlice :: MonadPlus Slice
-
