@@ -1,14 +1,14 @@
 module Test.Main where
 
-import Prelude
-import Control.Monad.Eff.Console
 import Test.QuickCheck
--- import Test.QuickCheck.Arbitrary
--- import Test.QuickCheck.Gen
---import Test.Classes
-import Data.Maybe
-import Data.Slice
-import Data.Foldable
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE, log)
+import Control.Monad.Eff.Exception (EXCEPTION)
+import Control.Monad.Eff.Random (RANDOM)
+import Data.Foldable (foldr, foldl)
+import Data.Maybe (Maybe(..))
+import Data.Slice (szipWith, sfoldr, sfoldl, smap, sfindLast, sfind, snull, stail, sinit, slast, shead, stake, sdrop, sarray, sat, slice)
+import Prelude (Unit, bind, negate, not, show, (+), (==), ($), (<>), (*))
 
 -- newtype TestSlice a = TestSlice (Slice a)
 
@@ -16,7 +16,8 @@ import Data.Foldable
 --   arbitrary = do
 --     a <- arbitrary
 --     return $ TestSlice $ slice a
-          
+
+main :: Eff (console :: CONSOLE, random :: RANDOM, err :: EXCEPTION) Unit
 main = do
   let sz = sdrop 1 $ slice [0]
       s1 = sdrop 1 $ slice [0,1]

@@ -25,23 +25,12 @@ module Data.Slice
   ) where
 
 import Prelude
-import Control.Alt
-import Control.Plus
-import Control.Alternative
-import Control.MonadPlus
-import Data.Monoid
-import Data.Maybe
-import Data.Array hiding(slice)
-import Data.Foldable
---import Math
-
-max :: Int -> Int -> Int
-max a b = if a > b then a else b
-
-min :: Int -> Int -> Int
-min a b = if a < b then a else b
-
-<<<<<<< HEAD
+import Control.Plus (class Plus, class Alt)
+import Control.MonadPlus (class MonadPlus, class MonadZero, class Alternative)
+import Data.Monoid (class Monoid, mempty)
+import Data.Maybe (Maybe(..))
+import Data.Array (concat, length, (!!))
+import Data.Foldable (class Foldable, intercalate, foldl)
 
 newtype Slice a = Slice {base::Int, len::Int, arr::Array a}
 
@@ -52,22 +41,6 @@ sstorage :: forall a. Slice a -> Array a
 sstorage (Slice s) = s.arr
 
 sarray :: forall a. Slice a -> Array a
-=======
--- | Represents a slice of an array.
-newtype Slice a = Slice {base::Number, len::Number, arr::[a]}
-
-
--- | Create a slice from an array.
-slice :: forall a. [a] -> Slice a
-slice a = Slice {base:0, len:length a, arr:a}
-
--- | Access to the underlying storage. If the slice doesn't cover the whole array it will return the whole array anyways.
-sstorage :: forall a. Slice a -> [a]
-sstorage (Slice s) = s.arr
-
--- | Construct a new array from a slice.
-sarray :: forall a. Slice a -> [a]
->>>>>>> f451125dbfaf8465c78f3170b9472196f68e2731
 sarray s = sstorage $ id <$> s
 
 -- | Constructor for the empty slice.
@@ -78,12 +51,8 @@ sempty = slice []
 ssingleton:: forall a. a -> Slice a
 ssingleton x = slice [x]
 
-<<<<<<< HEAD
-sat :: forall a. Slice a -> Int -> Maybe a
-=======
 -- | Access an element at an index.
-sat :: forall a. Slice a -> Number -> Maybe a
->>>>>>> f451125dbfaf8465c78f3170b9472196f68e2731
+sat :: forall a. Slice a -> Int -> Maybe a
 sat (Slice s) n = if n < s.len && n >= 0 then s.arr !! (s.base + n) else Nothing
 
 -- | Equality test.
@@ -91,25 +60,17 @@ seq :: forall a. (Eq a) => Slice a -> Slice a -> Boolean
 seq aa@(Slice a) bb@(Slice b) = a.len == b.len
                                 && (foldl (&&) true $ szipWith (==) aa bb)
 
-<<<<<<< HEAD
-sdrop :: forall a. Int -> Slice a -> Slice a
-=======
 -- | Drop a number of elements from the start of a slice, 
 -- | creating a new slice (O(1)).
-sdrop :: forall a. Number -> Slice a -> Slice a
->>>>>>> f451125dbfaf8465c78f3170b9472196f68e2731
+sdrop :: forall a. Int -> Slice a -> Slice a
 sdrop n ss@(Slice s) = sfromLen cn cl ss
   where cn = max 0 n
         nl = s.len - cn
         cl = max 0 nl
 
-<<<<<<< HEAD
-stake :: forall a. Int -> Slice a -> Slice a
-=======
 -- | Keep only a number of elements from the start of a slice,
 -- | creating a new slice (O(1)).
-stake :: forall a. Number -> Slice a -> Slice a
->>>>>>> f451125dbfaf8465c78f3170b9472196f68e2731
+stake :: forall a. Int -> Slice a -> Slice a
 stake n ss@(Slice s) = sfromLen 0 cl ss
   where cn = max 0 n
         cl = min s.len cn
@@ -188,7 +149,7 @@ foreign import sfoldr :: forall a b. (a -> b -> b) -> b -> Slice a -> b
 foreign import szipWith :: forall a b c. (a -> b -> c) -> Slice a -> Slice b -> Slice c
 
 instance showSlice :: (Show a) => Show (Slice a) where
-  show s = "Slice [" ++ intercalate ", " elems ++ "]"
+  show s = "Slice [" <> intercalate ", " elems <> "]"
     where elems = smap show s
 
 instance semigroupSlice :: Semigroup (Slice a) where
@@ -227,6 +188,8 @@ instance plusSlice :: Plus Slice where
    empty = sempty
   
 instance alternativeSlice :: Alternative Slice
+
+instance monadZeroSlice :: MonadZero Slice
 
 instance monadPlusSlice :: MonadPlus Slice
 
