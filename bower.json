@@ -1,12 +1,13 @@
 {
   "name": "purescript-slice",
-  "version": "0.0.1",
-  "homepage": "https://github.com/jacereda/purescript-slice",
   "description": "Slice utility functions",
-  "keywords": [
-    "purescript"
-  ],
+  "version": "0.1.0",
   "license": "MIT",
+  "homepage": "https://github.com/jacereda/purescript-slices",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jacereda/purescript-slices.git"
+  },
   "ignore": [
     "**/.*",
     "bower_components",
