@@ -19,12 +19,11 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-arrays": "~1.0.0",
-    "purescript-maybe": "~1.0.0"
+    "purescript-arrays": "~4.0.0",
+    "purescript-maybe": "~3.0.0"
   },
   "devDependencies": {
-    "purescript-console": "~1.0.0",
-    "purescript-quickcheck-laws": "~1.0.0",
-    "purescript-quickcheck": "~1.0.0"
+    "purescript-quickcheck-laws": "~3.0.0",
+    "purescript-quickcheck": "~4.0.0"
   }
 }

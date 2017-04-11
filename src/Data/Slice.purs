@@ -32,6 +32,7 @@ import Data.Array (concat, length, (!!))
 import Data.Foldable (class Foldable, intercalate, foldl)
 import Data.Maybe (Maybe(..))
 import Data.Monoid (class Monoid, mempty)
+import Data.Traversable (sequence, class Traversable)
 
 newtype Slice a = Slice {base::Int, len::Int, arr::Array a}
 
@@ -46,11 +47,11 @@ sarray s = sstorage $ id <$> s
 
 -- | Constructor for the empty slice.
 sempty :: forall a. Slice a
-sempty = slice []
+sempty = Slice {base:0, len:0, arr:[]}
 
 -- | Constructor for a slice containing a single element.
 ssingleton:: forall a. a -> Slice a
-ssingleton x = slice [x]
+ssingleton x = Slice {base:0, len:1, arr:[x]}
 
 -- | Access an element at an index.
 sat :: forall a. Slice a -> Int -> Maybe a
@@ -65,20 +66,26 @@ seq aa@(Slice a) bb@(Slice b) = a.len == b.len
 scompare :: forall a. (Ord a) => Slice a -> Slice a -> Ordering
 scompare a b = compare (sarray a) (sarray b)
 
+imax :: Int -> Int -> Int
+imax a b = if b < a then a else b
+
+imin :: Int -> Int -> Int
+imin a b = if a < b then a else b
+
 -- | Drop a number of elements from the start of a slice, 
 -- | creating a new slice (O(1)).
 sdrop :: forall a. Int -> Slice a -> Slice a
 sdrop n ss@(Slice s) = sfromLen cn cl ss
-  where cn = max 0 n
+  where cn = imax 0 n
         nl = s.len - cn
-        cl = max 0 nl
+        cl = imax 0 nl
 
 -- | Keep only a number of elements from the start of a slice,
 -- | creating a new slice (O(1)).
 stake :: forall a. Int -> Slice a -> Slice a
 stake n ss@(Slice s) = sfromLen 0 cl ss
-  where cn = max 0 n
-        cl = min s.len cn
+  where cn = imax 0 n
+        cl = imin s.len cn
 
 sfromLen :: forall a. Int -> Int -> Slice a -> Slice a
 sfromLen f l (Slice s) = Slice {base:s.base + f,
@@ -123,6 +130,7 @@ sconcat xxs = slice $ concat $ sarray $ sarray <$> xxs
 sconcatMap :: forall a b. (a -> Slice b) -> Slice a -> Slice b
 sconcatMap f xs = sconcat $ smap f xs
 
+
 -- | Find the first index for which a predicate holds,
 -- | or `-1` if no such element exists.
 foreign import sfind :: forall a. (a -> Boolean) -> Slice a -> Int
@@ -139,7 +147,6 @@ foreign import sfoldl :: forall a b. (b -> a -> b) -> b -> Slice a -> b
 
 -- | Apply a right-folding function to a slice.
 foreign import sfoldr :: forall a b. (a -> b -> b) -> b -> Slice a -> b
-
 
 -- | Apply a function to pairs of elements at the same index in two slices,
 -- | collecting the results in a new slice.
@@ -161,12 +168,16 @@ instance semigroupSlice :: Semigroup (Slice a) where
   append = sappend
 
 instance monoidSlice :: Monoid (Slice a) where
-  mempty = slice []
+  mempty = sempty
 
 instance foldableSlice :: Foldable Slice where
   foldr = sfoldr
   foldl = sfoldl
   foldMap f xs = sfoldr (\x acc -> f x <> acc) mempty xs
+
+instance traversableSlice :: Traversable Slice where
+  traverse f = sequence <<< map f
+  sequence xs = slice <$> (sequence $ sstorage xs)
 
 instance eqSlice :: (Eq a) => Eq (Slice a) where
   eq = seq

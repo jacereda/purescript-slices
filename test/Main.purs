@@ -1,5 +1,6 @@
 module Test.Main where
 
+import Prelude (Ordering(..), append, class Semigroup, compare, class Ord, class Bind, class Monad, (<<<), class Applicative, eq, class Eq, class Apply, map, apply, class Functor, pure, Unit, bind, negate, not, show, (+), (==), ($), (<>), (*), discard)
 import Test.QuickCheck.Laws.Data.Functor
 import Control.Alt (alt, class Alt)
 import Control.Alternative (class Alternative)
@@ -14,7 +15,6 @@ import Data.Foldable (foldr, foldl)
 import Data.Maybe (Maybe(..))
 import Data.Monoid (mempty, class Monoid)
 import Data.Slice (scompare, Slice, szipWith, sfoldr, sfoldl, smap, sfindLast, sfind, snull, stail, sinit, slast, shead, stake, sdrop, sarray, sat, slice)
-import Prelude (Ordering(..), append, class Semigroup, compare, class Ord, class Bind, class Monad, (<<<), class Applicative, eq, class Eq, class Apply, map, apply, class Functor, pure, Unit, bind, negate, not, show, (+), (==), ($), (<>), (*))
 import Test.QuickCheck (QC, quickCheck')
 import Test.QuickCheck.Arbitrary (arbitrary, class Arbitrary)
 import Test.QuickCheck.Laws (A, checkLaws)
@@ -71,7 +71,7 @@ instance monadZeroTestSlice :: MonadZero TestSlice
 instance monadPlusTestSlice :: MonadPlus TestSlice
 
 
-main :: Eff (console :: CONSOLE, random :: RANDOM, err :: EXCEPTION) Unit
+main :: Eff (console :: CONSOLE, random :: RANDOM, exception :: EXCEPTION) Unit
 main = do
   let sz = sdrop 1 $ slice [0]
       s1 = sdrop 1 $ slice [0,1]
