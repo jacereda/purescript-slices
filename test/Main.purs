@@ -1,13 +1,9 @@
 module Test.Main where
 
-import Prelude (Ordering(..), append, class Semigroup, compare, class Ord, class Bind, class Monad, (<<<), class Applicative, eq, class Eq, class Apply, map, apply, class Functor, pure, Unit, bind, negate, not, show, (+), (==), ($), (<>), (*), discard)
 import Test.QuickCheck.Laws.Data.Functor
+
 import Control.Alt (alt, class Alt)
 import Control.Alternative (class Alternative)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
-import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Eff.Random (RANDOM)
 import Control.MonadPlus (class MonadPlus)
 import Control.MonadZero (class MonadZero)
 import Control.Plus (empty, class Plus)
@@ -15,7 +11,10 @@ import Data.Foldable (foldr, foldl)
 import Data.Maybe (Maybe(..))
 import Data.Monoid (mempty, class Monoid)
 import Data.Slice (scompare, Slice, szipWith, sfoldr, sfoldl, smap, sfindLast, sfind, snull, stail, sinit, slast, shead, stake, sdrop, sarray, sat, slice)
-import Test.QuickCheck (QC, quickCheck')
+import Effect (Effect)
+import Effect.Console (log)
+import Prelude (Ordering(..), append, class Semigroup, compare, class Ord, class Bind, class Monad, (<<<), class Applicative, eq, class Eq, class Apply, map, apply, class Functor, pure, Unit, bind, negate, not, show, (+), (==), ($), (<>), (*), discard)
+import Test.QuickCheck (quickCheck')
 import Test.QuickCheck.Arbitrary (arbitrary, class Arbitrary)
 import Test.QuickCheck.Laws (A, checkLaws)
 import Test.QuickCheck.Laws.Control (checkPlus, checkMonadZero, checkMonadPlus, checkMonad, checkBind, checkApply, checkApplicative, checkAlternative, checkAlt)
@@ -71,7 +70,7 @@ instance monadZeroTestSlice :: MonadZero TestSlice
 instance monadPlusTestSlice :: MonadPlus TestSlice
 
 
-main :: Eff (console :: CONSOLE, random :: RANDOM, exception :: EXCEPTION) Unit
+main :: Effect Unit
 main = do
   let sz = sdrop 1 $ slice [0]
       s1 = sdrop 1 $ slice [0,1]
@@ -205,7 +204,7 @@ main = do
 
   log "done"
 
-assert :: Boolean -> QC () Unit
+assert :: Boolean -> Effect Unit
 assert = quickCheck' 1
 
 
