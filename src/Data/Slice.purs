@@ -31,7 +31,6 @@ import Control.Plus (class Plus, class Alt)
 import Data.Array (concat, length, (!!))
 import Data.Foldable (class Foldable, intercalate, foldl)
 import Data.Maybe (Maybe(..))
-import Data.Monoid (class Monoid, mempty)
 import Data.Traversable (sequence, class Traversable)
 
 newtype Slice a = Slice {base::Int, len::Int, arr::Array a}
@@ -43,7 +42,7 @@ sstorage :: forall a. Slice a -> Array a
 sstorage (Slice s) = s.arr
 
 sarray :: forall a. Slice a -> Array a
-sarray s = sstorage $ id <$> s
+sarray s = sstorage $ identity <$> s
 
 -- | Constructor for the empty slice.
 sempty :: forall a. Slice a
